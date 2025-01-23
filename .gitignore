@@ -1,5 +1,5 @@
 # Ambiente virtual
-venv/
+.venv/
 env/
 
 # Arquivos de ambiente
