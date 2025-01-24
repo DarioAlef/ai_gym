@@ -4,7 +4,7 @@ import openai
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 
 # Limpa qualquer variável OPENAI_API_KEY existente
 if "OPENAI_API_KEY" in os.environ:
@@ -35,10 +35,12 @@ modelo = ChatOpenAI(model="gpt-3.5-turbo")
 parser = StrOutputParser()
 chain = modelo | parser
 
-template_mensagens = ChatPromptTemplate.from_messages[
-    
-]
+template_mensagens = ChatPromptTemplate.from_messages([
+    ("system", "Traduza o texto para {idioma}"),
+    ("user", "{texto}"),
+])
 
+template_mensagens.invoke({"idioma": "Português do Brasil", "texto": "Hello, how are you?"})
 
 resposta = chain.invoke(mensagens)
 
