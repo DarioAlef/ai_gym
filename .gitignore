@@ -1,28 +1,39 @@
 # Ambiente virtual
+venv/
 .venv/
 env/
+ENV/
 
-# Arquivos de ambiente
+# Variáveis de ambiente
 .env
+.env.local
+.env.*.local
 
-# Cache do Python
+# Arquivos Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Arquivos de IDE
-.vscode/
+# IDEs e editores
 .idea/
+.vscode/
 *.swp
 *.swo
-
-# Arquivos do sistema
 .DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Arquivos temporários
-tmp/
-temp/ 
