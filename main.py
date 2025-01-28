@@ -130,25 +130,4 @@ def register_face():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
-
-
-# CONFIGURAÇÃO PARA DETECTAR FACE
-def update(self, dt):
-    ret, frame = self.capture.read()
-    if ret:
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        faces = faceCascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(20, 20))
-            
-        # Desenha retângulos apenas se houver faces detectadas
-        if len(faces) > 0:
-            for (x, y, w, h) in faces:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            
-        # TRANSFORMANDO UMA IMAGEM EM TEXTURA PARA COLOCAR A CAMERA
-        buf = cv2.flip(frame, 0).tostring()
-        image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
-        image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-        # display image from the texture
-        self.texture = image_texture
+    app.run(debug=True) 
