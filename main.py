@@ -7,7 +7,7 @@ from PIL import Image
 import io
 from os import makedirs, path
 from models import db, User
-from api import app  # Importando a instância do Flask
+from api import app  # Certifique-se de que você está importando a instância do Flask
 
 app.config.update(
     SQLALCHEMY_DATABASE_URI='sqlite:///app.db',
@@ -40,14 +40,16 @@ def face_login():
         opencv_image = process_image_data(request.json['image'])
         faces, gray = detect_faces(opencv_image)
         
-        if not faces:
+        if len(faces) == 0:
             return jsonify({'success': False, 'message': 'Nenhuma face detectada'})
         
         users = User.query.filter(User.face_data.isnot(None)).all()
         if not users:
             return jsonify({'success': False, 'message': 'Nenhum usuário cadastrado'})
         
-        training_data, labels = [], []
+        # Prepara dados de treinamento
+        training_data = []
+        labels = []
         for user in users:
             if path.exists(user.face_data):
                 face_img = cv2.imread(user.face_data, cv2.IMREAD_GRAYSCALE)
@@ -57,16 +59,24 @@ def face_login():
         if not training_data:
             return jsonify({'success': False, 'message': 'Nenhuma face cadastrada'})
         
+        # Reconhecimento facial
         recognizer = cv2.face.LBPHFaceRecognizer_create()
         recognizer.train(training_data, np.array(labels))
         
-        for (x, y, w, h) in faces:
+        for (x,y,w,h) in faces:
             face = cv2.resize(gray[y:y+h, x:x+w], (200, 200))
-            label, confidence = recognizer.predict(face)
-            if confidence < 70:
-                user = User.query.get(label)
-                if user:
-                    return jsonify({'success': True, 'user_id': user.id, 'username': user.username})
+            try:
+                label, confidence = recognizer.predict(face)
+                if confidence < 70:
+                    user = User.query.get(label)
+                    if user:
+                        return jsonify({
+                            'success': True,
+                            'user_id': user.id,
+                            'username': user.username
+                        })
+            except Exception as e:
+                continue
         
         return jsonify({'success': False, 'message': 'Face não reconhecida'})
         
@@ -84,9 +94,10 @@ def register_face():
         
         faces, gray = detect_faces(opencv_image)
         
-        if not faces:
+        if len(faces) == 0:
             return jsonify({'success': False, 'message': 'Nenhuma face detectada'})
         
+        # Processa apenas a primeira face detectada
         x, y, w, h = faces[0]
         face = cv2.resize(gray[y:y+h, x:x+w], (200, 200))
         
@@ -103,4 +114,4 @@ def register_face():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)  # Inicia a aplicação Flask 
+    app.run(debug=True) 

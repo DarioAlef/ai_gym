@@ -10,7 +10,9 @@
                 <h2>IA GYM chat</h2>
             </div>
             <div class="card-body">
-                <div id="chat-messages" class="chat-messages" style="height: 400px; overflow-y: auto;"></div>
+                <div id="chat-messages" class="chat-messages" style="height: 400px; overflow-y: auto;">
+                    <!-- As mensagens serão inseridas aqui -->
+                </div>
                 <div id="download-buttons" class="mt-2" style="display: none;">
                     <button class="btn btn-sm btn-success" onclick="downloadAsCSV()">Download CSV</button>
                     <button class="btn btn-sm btn-info" onclick="downloadAsExcel()">Download Excel</button>
@@ -19,7 +21,9 @@
                 <form id="chat-form" class="mt-3">
                     <div class="input-group">
                         <input type="text" id="message-input" class="form-control" placeholder="Digite sua mensagem..." required>
-                        <button class="btn btn-primary" type="submit">Enviar</button>
+                        <button class="btn btn-primary" type="submit" style="background: linear-gradient(135deg, #00ff99, #00cc66); border: none; color: white; padding: 10px 20px; border-radius: 30px; font-size: 1.1em; font-weight: bold; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 255, 153, 0.2);">
+                            Enviar
+                        </button>
                         <button id="record-button" class="btn btn-danger" type="button" style="margin-left: 10px;">Gravar</button>
                     </div>
                 </form>
@@ -29,68 +33,244 @@
 </div>
 
 <style>
-#message-input { background-color: #333; color: white; border: 1px solid #444; border-radius: 10px; padding: 10px; }
-#message-input::placeholder { color: #bbb; opacity: 1; }
-.message { margin: 10px; padding: 10px; border-radius: 10px; }
-.user-message { background-color: #007bff; color: white; margin-left: 20%; }
-.ai-message { background-color: #f8f9fa; margin-right: 20%; white-space: pre-line; }
-.ai-message table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-.ai-message th, .ai-message td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-.ai-message th { background-color: #f5f5f5; }
+/* Estilo para o campo de entrada de mensagem */
+#message-input {
+    background-color: #333;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* Estilo para o texto do placeholder */
+#message-input::placeholder {
+    color: #bbb; /* cor clara para o texto do placeholder */
+    opacity: 1; /* Garante que a opacidade seja 100% */
+}
+
+/* Estilos para as mensagens */
+.message {
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+/* Estilo para a mensagem do usuário */
+.user-message {
+    background-color: #007bff;
+    color: white;
+    margin-left: 20%;
+}
+
+/* Estilo para a mensagem da IA */
+.ai-message {
+    background-color: #f8f9fa;
+    margin-right: 20%;
+    white-space: pre-line;
+}
+
+/* Estilos para tabelas dentro da mensagem da IA */
+.ai-message table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.ai-message th,
+.ai-message td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.ai-message th {
+    background-color: #f5f5f5;
+}
+
+/* Estilos para o markdown dentro da mensagem da IA */
+.ai-message h1, .ai-message h2, .ai-message h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.ai-message ul, .ai-message ol {
+    padding-left: 20px;
+}
+
+.ai-message p {
+    margin-bottom: 1rem;
+}
+
+.ai-message strong {
+    font-weight: bold;
+}
+
+/* Estilos para os botões de download */
+#download-buttons {
+    margin-top: 10px;
+}
+
+#download-buttons button {
+    margin-right: 5px;
+}
 </style>
 
+<!-- Bibliotecas necessárias -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
 <script>
-let mediaRecorder, audioChunks = [];
+// Variáveis para gravação de áudio
+let mediaRecorder;
+let audioChunks = [];
+
+// Função para mostrar a resposta da IA imediatamente
+function showAiMessageInstantly(element, message) {
+    element.innerHTML = message; // Apresenta a mensagem da IA imediatamente, sem efeitos de digitação.
+}
+
+// Função para converter tabela HTML para CSV
+function tableToCSV(table) {
+    const rows = table.querySelectorAll('tr');
+    return Array.from(rows).map(row => {
+        return Array.from(row.querySelectorAll('th,td'))
+            .map(cell => cell.textContent)
+            .join(',');
+    }).join('\n');
+}
+
+// Função para download como CSV
+function downloadAsCSV() {
+    const table = document.querySelector('.ai-message table');
+    if (!table) return;
+
+    const csv = tableToCSV(table);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tabela.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+// Função para download como Excel
+function downloadAsExcel() {
+    const table = document.querySelector('.ai-message table');
+    if (!table) return;
+
+    const wb = XLSX.utils.table_to_book(table);
+    XLSX.writeFile(wb, 'tabela.xlsx');
+}
+
+// Função para download como PNG
+function downloadAsPNG() {
+    const table = document.querySelector('.ai-message table');
+    if (!table) return;
+
+    html2canvas(table).then(canvas => {
+        const url = canvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'tabela.png';
+        a.click();
+    });
+}
+
+// Função para iniciar/parar gravação
 document.getElementById('record-button').addEventListener('click', async function() {
     if (!mediaRecorder || mediaRecorder.state === 'inactive') {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.start();
-        this.textContent = 'Parar';
         
-        mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+        mediaRecorder.start();
+        document.getElementById('record-button').textContent = 'Parar';
+        
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
         mediaRecorder.onstop = async () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
             audioChunks = [];
             const formData = new FormData();
             formData.append('file', audioBlob, 'audio.wav');
 
-            const response = await fetch('/transcribe_audio', { method: 'POST', body: formData });
+            // Envia o áudio para a API para transcrição
+            const response = await fetch('/transcribe_audio', {
+                method: 'POST',
+                body: formData
+            });
+
             const data = await response.json();
             if (data.status === 'success') {
-                document.getElementById('message-input').value = data.transcription;
+                const messageInput = document.getElementById('message-input');
+                messageInput.value = data.transcription; // Coloca a transcrição no campo de mensagem
+                messageInput.dispatchEvent(new Event('input')); // Atualiza o estado do formulário
             } else {
                 alert('Erro na transcrição: ' + data.message);
             }
         };
     } else {
         mediaRecorder.stop();
-        this.textContent = 'Gravar';
+        document.getElementById('record-button').textContent = 'Gravar';
     }
 });
 
 document.getElementById('chat-form').addEventListener('submit', async function(e) {
     e.preventDefault();
+
     const messageInput = document.getElementById('message-input');
     const chatMessages = document.getElementById('chat-messages');
     const message = messageInput.value;
 
-    chatMessages.innerHTML += `<div class="message user-message">${message}</div>`;
+    // Adiciona mensagem do usuário
+    const userDiv = document.createElement('div');
+    userDiv.className = 'message user-message';
+    userDiv.textContent = message;
+    chatMessages.appendChild(userDiv);
+
     messageInput.value = '';
 
-    const response = await fetch('/send_message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `message=${encodeURIComponent(message)}`
-    });
+    try {
+        const response = await fetch('/send_message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `message=${encodeURIComponent(message)}`
+        });
 
-    const data = await response.json();
-    if (data.status === 'success') {
-        chatMessages.innerHTML += `<div class="message ai-message">${data.response}</div>`;
-    } else {
-        alert('Erro: ' + data.message);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            const aiDiv = document.createElement('div');
+            aiDiv.className = 'message ai-message';
+            aiDiv.innerHTML = '';  // Inicializa o conteúdo vazio
+
+            // Apresenta a mensagem da IA imediatamente (sem intervalo)
+            chatMessages.appendChild(aiDiv);
+            showAiMessageInstantly(aiDiv, marked.parse(data.response));
+
+            // Mostra os botões de download se houver uma tabela
+            const hasTable = aiDiv.querySelector('table') !== null;
+            document.getElementById('download-buttons').style.display = hasTable ? 'block' : 'none';
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao enviar mensagem: ' + error.message);
     }
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
+
+marked.setOptions({
+    sanitize: false, // Necessário para permitir tabelas HTML
+    breaks: true
+});
 </script>
-{% endblock %}
+
+{% endblock %}

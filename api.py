@@ -11,23 +11,31 @@ app = Flask(__name__)
 load_dotenv()
 api_key = os.getenv('GROQ_API_KEY')
 
-client = Groq(api_key=api_key)
+client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY"),
+)
 
-@app.route('/transcribe_audio', methods=['POST'])
-def transcribe_audio_route():
-    if 'file' not in request.files:
-        return jsonify({'status': 'error', 'message': 'Nenhum arquivo enviado.'}), 400
+def get_groq_response(user_message):
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": user_message,
+            }
+        ],
+        model="llama-3.3-70b-versatile",
+    )
+    
+    return chat_completion.choices[0].message.content
 
-    audio_file = request.files['file']
-    file_path = os.path.join(tempfile.gettempdir(), audio_file.filename)
-    audio_file.save(file_path)
+######################################################################
 
-    transcription = transcribe_audio(file_path)
-    if transcription:
-        return jsonify({'status': 'success', 'transcription': transcription})
-    else:
-        return jsonify({'status': 'error', 'message': 'Falha na transcrição.'}), 500
+# Configurações da API
+groq_api_key = "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"
+groq_api_endpoint = "https://api.groq.com/openai/v1/audio/transcriptions"
+headers = {"Authorization": f"Bearer {groq_api_key}"}
 
+# Função para transcrever áudio
 def transcribe_audio(file_path, model="whisper-large-v3-turbo", language="pt"):
     file_extension = os.path.splitext(file_path)[1].lower()
     mime_type = 'audio/mp3' if file_extension == '.mp3' else 'audio/wav' if file_extension == '.wav' else None
@@ -44,11 +52,24 @@ def transcribe_audio(file_path, model="whisper-large-v3-turbo", language="pt"):
             "response_format": "json",
         }
         response = requests.post("https://api.groq.com/openai/v1/audio/transcriptions", headers={"Authorization": f"Bearer {api_key}"}, files=files, data=data)
-        return response.json().get("text", "") if response.status_code == 200 else ""
+        
+        if response.status_code == 200:
+            return response.json().get("text", "")
+        else:
+            print(f"Erro na API: {response.status_code} - {response.text}")
+            return ""
 
-def get_groq_response(user_message):
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": user_message}],
-        model="llama-3.3-70b-versatile",
-    )
-    return chat_completion.choices[0].message.content
+@app.route('/transcribe_audio', methods=['POST'])
+def transcribe_audio_route():
+    if 'file' not in request.files:
+        return jsonify({'status': 'error', 'message': 'Nenhum arquivo enviado.'}), 400
+
+    audio_file = request.files['file']
+    file_path = os.path.join(tempfile.gettempdir(), audio_file.filename)
+    audio_file.save(file_path)
+
+    transcription = transcribe_audio(file_path)
+    if transcription:
+        return jsonify({'status': 'success', 'transcription': transcription})
+    else:
+        return jsonify({'status': 'error', 'message': 'Falha na transcrição.'}), 500

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for
-# from api import get_groq_response
+from api import get_groq_response
 from models import User, db
 
 bp = Blueprint('main', __name__)
@@ -22,11 +22,11 @@ def send_message():
     
     try:
         # Usa a função importada do main.py
-        # ai_response = get_groq_response(user_message)
+        ai_response = get_groq_response(user_message)
         
         return jsonify({
             'status': 'success',
-            'response': user_message
+            'response': ai_response
         })
     
     except Exception as e:
