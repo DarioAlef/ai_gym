@@ -1,13 +1,6 @@
 # Ambiente virtual
 venv/
 .venv/
-env/
-ENV/
-
-# Variáveis de ambiente
-.env
-.env.local
-.env.*.local
 
 # Arquivos Python
 __pycache__/

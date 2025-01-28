@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Login - AI GYM{% endblock %}
+{% block title %}Cadastro - AI GYM{% endblock %}
 
 {% block content %}
 <div class="container" style="max-width: 500px; margin-top: 100px;">
     <div class="card shadow-lg" style="border-radius: 15px; background-color: #1f1f1f; color: white;">
         <div class="card-header text-center" style="background-color: #121212; border-radius: 15px 15px 0 0;">
-            <h2 style="color: #00ff99;">Login - AI GYM</h2>
+            <h2 style="color: #00ff99;">Cadastro - AI GYM</h2>
         </div>
         <div class="card-body">
-            <form method="POST">
+            <form id="signupForm">
                 <div class="mb-3">
                     <label for="username" class="form-label">Usuário</label>
                     <input type="text" class="form-control" id="username" name="username" required style="background-color: #333; color: white; border: 1px solid #444;">
@@ -19,10 +19,10 @@
                     <input type="password" class="form-control" id="password" name="password" required style="background-color: #333; color: white; border: 1px solid #444;">
                 </div>
                 <button type="submit" class="btn btn-success w-100 mb-3" style="font-size: 1.2em; font-weight: bold; padding: 12px; background: linear-gradient(135deg, #00ff99, #00cc66); border: none; transition: all 0.3s ease;">
-                    Entrar
+                    Cadastrar
                 </button>
-                <button type="button" id="faceLoginBtn" class="btn btn-primary w-100" style="font-size: 1.2em; font-weight: bold; padding: 12px; background: linear-gradient(135deg, #0066ff, #0044cc); border: none; transition: all 0.3s ease;">
-                    Login com Reconhecimento Facial
+                <button type="button" id="faceRegisterBtn" class="btn btn-primary w-100" style="font-size: 1.2em; font-weight: bold; padding: 12px; background: linear-gradient(135deg, #0066ff, #0044cc); border: none; transition: all 0.3s ease;">
+                    Cadastrar Face
                 </button>
             </form>
             <div id="videoContainer" style="display: none; margin-top: 20px;">
@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="card-footer text-center" style="background-color: #121212; border-radius: 0 0 15px 15px;">
-            <p style="font-size: 0.9em;">Não tem uma conta? <a href="/signup" style="color: #00ff99; text-decoration: none;">Crie uma agora</a></p>
+            <p style="font-size: 0.9em;">Já tem uma conta? <a href="/login" style="color: #00ff99; text-decoration: none;">Faça login</a></p>
         </div>
     </div>
 </div>
@@ -42,8 +42,10 @@
 <script>
 let video = null;
 let stream = null;
+let photosTaken = 0;
+const REQUIRED_PHOTOS = 30; // Número de fotos necessárias para cadastro
 
-document.getElementById('faceLoginBtn').addEventListener('click', async () => {
+document.getElementById('faceRegisterBtn').addEventListener('click', async () => {
     const videoContainer = document.getElementById('videoContainer');
     
     if (videoContainer.style.display === 'none') {
@@ -54,7 +56,6 @@ document.getElementById('faceLoginBtn').addEventListener('click', async () => {
             stream = await navigator.mediaDevices.getUserMedia({ video: true });
             video.srcObject = stream;
             
-            // Iniciar reconhecimento facial
             startFaceDetection();
         } catch (err) {
             console.error("Erro ao acessar câmera:", err);
@@ -67,15 +68,13 @@ document.getElementById('faceLoginBtn').addEventListener('click', async () => {
 
 async function startFaceDetection() {
     const model = await faceDetection.createDetector();
-    
-    setInterval(async () => {
+    const captureInterval = setInterval(async () => {
         if (video && video.readyState === 4) {
             const faces = await model.estimateFaces(video, {
                 flipHorizontal: false
             });
             
-            if (faces.length > 0) {
-                // Capturar frame e enviar para o servidor
+            if (faces.length > 0 && photosTaken < REQUIRED_PHOTOS) {
                 const canvas = document.getElementById('canvas');
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
@@ -84,25 +83,34 @@ async function startFaceDetection() {
                 const imageData = canvas.toDataURL('image/jpeg');
                 
                 try {
-                    const response = await fetch('/face_login', {
+                    const response = await fetch('/register_face', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ image: imageData })
+                        body: JSON.stringify({ 
+                            image: imageData,
+                            user_id: document.getElementById('username').value
+                        })
                     });
                     
                     const result = await response.json();
                     if (result.success) {
-                        stopCamera();
-                        window.location.href = '/dashboard';
+                        photosTaken++;
+                        if (photosTaken >= REQUIRED_PHOTOS) {
+                            clearInterval(captureInterval);
+                            stopCamera();
+                            alert("Cadastro facial concluído com sucesso!");
+                            // Submeter o formulário de cadastro
+                            document.getElementById('signupForm').submit();
+                        }
                     }
                 } catch (err) {
                     console.error("Erro ao enviar imagem:", err);
                 }
             }
         }
-    }, 100);
+    }, 500); // Captura uma foto a cada 500ms
 }
 
 function stopCamera() {
@@ -116,4 +124,4 @@ function stopCamera() {
     document.getElementById('videoContainer').style.display = 'none';
 }
 </script>
-{% endblock %}
+{% endblock %} 

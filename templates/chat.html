@@ -21,7 +21,9 @@
                 <form id="chat-form" class="mt-3">
                     <div class="input-group">
                         <input type="text" id="message-input" class="form-control" placeholder="Digite sua mensagem..." required>
-                        <button class="btn btn-primary" type="submit">Enviar</button>
+                        <button class="btn btn-primary" type="submit" style="background: linear-gradient(135deg, #00ff99, #00cc66); border: none; color: white; padding: 10px 20px; border-radius: 30px; font-size: 1.1em; font-weight: bold; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 255, 153, 0.2);">
+                            Enviar
+                        </button>
                     </div>
                 </form>
             </div>
@@ -30,25 +32,43 @@
 </div>
 
 <style>
+/* Estilo para o campo de entrada de mensagem */
+#message-input {
+    background-color: #333;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* Estilo para o texto do placeholder */
+#message-input::placeholder {
+    color: #bbb; /* cor clara para o texto do placeholder */
+    opacity: 1; /* Garante que a opacidade seja 100% */
+}
+
+/* Estilos para as mensagens */
 .message {
     margin: 10px;
     padding: 10px;
     border-radius: 10px;
 }
 
+/* Estilo para a mensagem do usuário */
 .user-message {
     background-color: #007bff;
     color: white;
     margin-left: 20%;
 }
 
+/* Estilo para a mensagem da IA */
 .ai-message {
     background-color: #f8f9fa;
     margin-right: 20%;
     white-space: pre-line;
 }
 
-/* Estilos para tabelas */
+/* Estilos para tabelas dentro da mensagem da IA */
 .ai-message table {
     width: 100%;
     border-collapse: collapse;
@@ -66,7 +86,7 @@
     background-color: #f5f5f5;
 }
 
-/* Estilos para o markdown */
+/* Estilos para o markdown dentro da mensagem da IA */
 .ai-message h1, .ai-message h2, .ai-message h3 {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
@@ -84,6 +104,7 @@
     font-weight: bold;
 }
 
+/* Estilos para os botões de download */
 #download-buttons {
     margin-top: 10px;
 }
@@ -93,12 +114,17 @@
 }
 </style>
 
-<!-- Adicione as bibliotecas necessárias -->
+<!-- Bibliotecas necessárias -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
 <script>
+// Função para mostrar a resposta da IA imediatamente
+function showAiMessageInstantly(element, message) {
+    element.innerHTML = message; // Apresenta a mensagem da IA imediatamente, sem efeitos de digitação.
+}
+
 // Função para converter tabela HTML para CSV
 function tableToCSV(table) {
     const rows = table.querySelectorAll('tr');
@@ -113,7 +139,7 @@ function tableToCSV(table) {
 function downloadAsCSV() {
     const table = document.querySelector('.ai-message table');
     if (!table) return;
-    
+
     const csv = tableToCSV(table);
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -128,7 +154,7 @@ function downloadAsCSV() {
 function downloadAsExcel() {
     const table = document.querySelector('.ai-message table');
     if (!table) return;
-    
+
     const wb = XLSX.utils.table_to_book(table);
     XLSX.writeFile(wb, 'tabela.xlsx');
 }
@@ -137,7 +163,7 @@ function downloadAsExcel() {
 function downloadAsPNG() {
     const table = document.querySelector('.ai-message table');
     if (!table) return;
-    
+
     html2canvas(table).then(canvas => {
         const url = canvas.toDataURL('image/png');
         const a = document.createElement('a');
@@ -149,19 +175,19 @@ function downloadAsPNG() {
 
 document.getElementById('chat-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     const messageInput = document.getElementById('message-input');
     const chatMessages = document.getElementById('chat-messages');
     const message = messageInput.value;
-    
+
     // Adiciona mensagem do usuário
     const userDiv = document.createElement('div');
     userDiv.className = 'message user-message';
     userDiv.textContent = message;
     chatMessages.appendChild(userDiv);
-    
+
     messageInput.value = '';
-    
+
     try {
         const response = await fetch('/send_message', {
             method: 'POST',
@@ -170,15 +196,18 @@ document.getElementById('chat-form').addEventListener('submit', async function(e
             },
             body: `message=${encodeURIComponent(message)}`
         });
-        
+
         const data = await response.json();
-        
+
         if (data.status === 'success') {
             const aiDiv = document.createElement('div');
             aiDiv.className = 'message ai-message';
-            aiDiv.innerHTML = marked.parse(data.response);
+            aiDiv.innerHTML = '';  // Inicializa o conteúdo vazio
+
+            // Apresenta a mensagem da IA imediatamente (sem intervalo)
             chatMessages.appendChild(aiDiv);
-            
+            showAiMessageInstantly(aiDiv, marked.parse(data.response));
+
             // Mostra os botões de download se houver uma tabela
             const hasTable = aiDiv.querySelector('table') !== null;
             document.getElementById('download-buttons').style.display = hasTable ? 'block' : 'none';
@@ -189,7 +218,7 @@ document.getElementById('chat-form').addEventListener('submit', async function(e
         console.error('Erro:', error);
         alert('Erro ao enviar mensagem: ' + error.message);
     }
-    
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
@@ -198,4 +227,5 @@ marked.setOptions({
     breaks: true
 });
 </script>
-{% endblock %} 
+
+{% endblock %}

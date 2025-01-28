@@ -1,12 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Página Inicial{% endblock %}
+{% block title %}Bem-vindo ao AI GYM{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <h1>This is AI GYM, your personal assistant.</h1>
-        <p>Esta é a página inicial do nosso aplicativo.</p>
+<div class="container-fluid" style="position: relative; height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #121212; color: white;">
+    <div class="text-center" style="position: relative; z-index: 10;">
+        <h1 style="font-size: 4em; color: #00ff99; text-shadow: 0 4px 6px rgba(0, 255, 153, 0.6);">
+            Bem-Vindo(a) à AI GYM
+        </h1>
+        <p style="font-size: 1.5em; margin: 20px 0; text-shadow: 0 4px 6px rgba(0, 255, 153, 0.6);">
+            SUA ACADEMIA AUTÔNOMA!
+        </p>
+        <!-- Alterando o href para direcionar à página de login -->
+        <a href="/login" class="btn" style="padding: 15px 30px; background: linear-gradient(135deg, #00ff99, #00cc66); color: #fff; font-size: 1.2em; font-weight: bold; text-decoration: none; border-radius: 50px; box-shadow: 0 8px 16px rgba(0, 255, 153, 0.3); transition: all 0.3s ease-in-out;">
+            COMECE AGORA
+        </a>
     </div>
+
+    <!-- Imagem de fundo -->
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://www.example.com/imagem-de-fundo.jpg') no-repeat center center/cover; filter: brightness(50%); z-index: 1;"></div>
 </div>
-{% endblock %}
+{% endblock %}
