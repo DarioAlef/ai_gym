@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <style>
+        .fullscreen-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/static/images/logo.png') no-repeat center center/cover;
+        }
+    </style>
+
+    <div class="fullscreen-bg"></div>
+
+    <div class="container-fluid d-flex justify-content-center align-items-center" style="height: 100vh; background-color: #07191c;">
+        <div class="text-left" style="z-index: 10; max-width: 450px; width: 100%; padding: 20px;">
+            <h2 style="color: #00ff99; font-family: 'Arial', sans-serif; font-weight: bold; font-size: 2.5em; margin-bottom: 20px; text-align: center;">
+                Pagamento
+            </h2>
+
+            <!-- Opções de pagamento (Diário / Mensal) -->
+            <div class="mb-4 text-center">
+                <div class="d-flex justify-content-center gap-3 mt-2">
+                    <input type="radio" id="diaria" name="plano" value="88" checked>
+                    <label for="diaria" style="color: #00ff99; font-size: 1.2em;">Diária - R$ 88</label>
+
+                    <input type="radio" id="mensal" name="plano" value="129">
+                    <label for="mensal" style="color: #00ff99; font-size: 1.2em;">Mensal - R$ 129</label>
+                </div>
+            </div>
+
+            <!-- Opções de pagamento via PIX ou Cartão -->
+            <div class="mb-4 text-center">
+                <div class="d-flex justify-content-center gap-3 mt-2">
+                    <input type="radio" id="cartao" name="metodo" value="cartao" checked onclick="togglePaymentMethod()">
+                    <label for="cartao" style="color: #00ff99; font-size: 1.2em; ">Cartão</label>
+
+                    <input type="radio" id="pix" name="metodo" value="pix" onclick="togglePaymentMethod()">
+                    <label for="pix" style="color: #00ff99; font-size: 1.2em;">PIX</label>
+                </div>
+            </div>
+
+            <!-- Formulário de pagamento (Cartão de Crédito) -->
+            <form method="POST" id="payment-form" action="/pagamento" style="background: rgba(0, 0, 0, 0.7); padding: 30px; border-radius: 15px; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);" class="payment-method-form">
+                <!-- Número do Cartão -->
+                <div class="mb-3">
+                    <label for="card_number" class="form-label" style="color: #fff; font-size: 1.2em;">Número do Cartão:</label>
+                    <input type="text" class="form-control" id="card_number" name="card_number" required placeholder="Digite o número do cartão" style="background-color: #2a2a2a; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 1em;">
+                </div>
+
+                <!-- Nome no Cartão -->
+                <div class="mb-3">
+                    <label for="card_name" class="form-label" style="color: #fff; font-size: 1.2em;">Nome no Cartão:</label>
+                    <input type="text" class="form-control" id="card_name" name="card_name" required placeholder="Digite o nome impresso no cartão" style="background-color: #2a2a2a; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 1em;">
+                </div>
+
+                <!-- Data de Validade -->
+                <div class="mb-3">
+                    <label for="expiry_date" class="form-label" style="color: #fff; font-size: 1.2em;">Data de Validade:</label>
+                    <input type="text" class="form-control" id="expiry_date" name="expiry_date" required placeholder="MM/AA" style="background-color: #2a2a2a; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 1em;">
+                </div>
+
+                <!-- Código de Segurança -->
+                <div class="mb-3">
+                    <label for="cvv" class="form-label" style="color: #fff; font-size: 1.2em;">CVV:</label>
+                    <input type="text" class="form-control" id="cvv" name="cvv" required placeholder="Digite o CVV" style="background-color: #2a2a2a; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 1em;">
+                </div>
+
+                <!-- Botão de Finalizar Pagamento -->
+                <button type="submit" class="btn w-100" style="font-size: 1.2em; font-weight: bold; padding: 12px; background: linear-gradient(135deg, #00ff99, #00cc66); border: none; border-radius: 8px; transition: all 0.3s ease; color: white;">
+                    Finalizar Pagamento
+                </button>
+            </form>
+
+            <!-- Imagem QR Code (aparece apenas quando PIX é selecionado) -->
+            <div id="pix-qr-code" style="display: none; margin-top: 20px;">
+                <p style="color: white; text-align: center;">Pagamento via PIX</p>
+                <img src="{{ url_for('static', filename='images/qr_code_pix.jpg') }}" alt="QR Code PIX" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function togglePaymentMethod() {
+            var paymentMethod = document.querySelector('input[name="metodo"]:checked').value;
+            if (paymentMethod === 'pix') {
+                // Ocultar formulário de cartão e mostrar QR Code
+                document.getElementById('payment-form').style.display = 'none';
+                document.getElementById('pix-qr-code').style.display = 'block';
+            } else {
+                // Mostrar formulário de cartão e esconder QR Code
+                document.getElementById('payment-form').style.display = 'block';
+                document.getElementById('pix-qr-code').style.display = 'none';
+            }
+        }
+    </script>
+
+{% endblock %}

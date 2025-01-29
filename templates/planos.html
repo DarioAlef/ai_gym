@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}AI GYM - Planos{% endblock %}
+
+{% block content %}
+
+<style>
+/* Estilo da logo */
+.logo-img {
+    max-height: 250px;
+    height: auto;
+    width: auto;
+    margin-left: 20px;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #07191c;
+}
+
+/* Menu de navegação */
+.menu {
+    display: flex;
+    gap: 30px;
+    margin-top: 25px; /* Ajuste da margem para ficar consistente com a outra página */
+}
+
+/* Itens do menu */
+.menu-item {
+    padding: 15px 30px;
+    font-size: 1.16em; /* Ajustado para ser igual ao da outra página */
+    text-decoration: none;
+    color: #dcdcdc;
+    transition: all 0.1s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border-bottom: 4px solid transparent;
+}
+
+/* Efeito de linha abaixo do item quando o cursor passa sobre */
+.menu-item:hover {
+    border-bottom: 4px solid #00ff99;
+    color: #00ff99;
+}
+
+.login {
+    font-weight: bold;
+    background-color: #ff7f50;
+    color: white;
+    border-radius: 30px;
+    padding: 15px 30px;
+}
+
+.menu-item:not(.login):hover {
+    color: #00ff99;
+    border-bottom: 4px solid #00ff99;
+}
+
+/* Divisória */
+.divider {
+    margin-top: 10px;
+    border-top: 2px solid #bdafaf;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 5px rgb(48, 47, 47); /* Sombra suave */
+}
+
+/* Garantindo a mesma fonte em toda a página */
+body {
+    font-family: Arial, sans-serif; /* Garantindo a mesma fonte em ambas as páginas */
+}
+
+.main-content {
+    text-align: center;
+    padding: 100px 50px;
+}
+
+.hero-text h1 {
+    color: #fff;
+    font-size: 3em; /* Tamanho da fonte ajustado */
+}
+
+.hero-text p {
+    color: #fff;
+    font-size: 1.5em; /* Tamanho da fonte ajustado */
+}
+
+</style>
+
+<!-- Navbar -->
+<div class="navbar-container" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 50px;">
+    <div class="logo" style="flex: 1; display: flex; justify-content: flex-start;">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AI GYM Logo" class="logo-img" style="height: 120px;">
+    </div>
+    <div class="menu">
+        <a href="/unidades" class="menu-item">UNIDADES</a>
+        <a href="/planos" class="menu-item">PLANOS</a>
+        <a href="/app" class="menu-item">APP</a>
+        <a href="/login" class="menu-item login">LOGIN</a>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- Conteúdo principal -->
+<div class="main-content">
+    <div class="hero-text">
+        <h1>Escolha seu plano</h1>
+        <p>Comece agora um vida mais saudável com o auxílio da melhor tecnologia do mercado!<!doctype html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport"
+                      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+                <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                <title>Document</title>
+            </head>
+            <body>
+            
+            </body>
+            </html></p>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+        });
+    });
+</script>
+
+<style>
+    /* Layout das colunas */
+    .price-cards {
+        display: flex;
+        justify-content: space-between;
+        gap: 2rem;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        flex-wrap: wrap;
+    }
+
+    /* Estilos para cada cartão de plano */
+    .price-card {
+        background-color: rgba(255, 255, 255, 0.95); /* Fundo branco com maior opacidade */
+        border-radius: 20px; /* Cantos bem arredondados */
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Sombra mais suave e maior */
+        padding: 25px;
+        text-align: center;
+        flex: 1;
+        min-height: 480px;
+        max-width: 380px; /* Ajustei um pouco para que ficassem bem proporcionados */
+        border: 2px solid transparent;
+        transition: all 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+    }
+
+    /* Cores de borda dos planos */
+    .price-card.tradicional {
+        border-color: #4CAF50;
+    }
+
+    .price-card.premium {
+        border-color: #2980b9;
+    }
+
+    .price-card.diamante {
+        border-color: #f39c12;
+    }
+
+    /* Efeitos ao passar o mouse sobre o cartão */
+    .price-card:hover {
+        transform: translateY(-5px); /* Levanta o cartão suavemente */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Aumenta a sombra ao passar o mouse */
+    }
+
+    /* Estilos para o preço */
+    .price-container {
+        display: flex;
+        justify-content: center;
+        align-items: baseline;
+        margin: 20px 0;
+    }
+
+    .price-large {
+        font-size: 3.5rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .price-small {
+        font-size: 1.7rem;
+        font-weight: normal;
+        margin-left: 5px;
+        color: #333;
+    }
+
+    /* Estilo para os títulos */
+    .price-card h2 {
+        font-size: 1.6rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    /* Estilo para o botão */
+    .price-card button {
+        background-color: #fff;
+        color: #333;
+        padding: 12px 20px;
+        border-radius: 25px; /* Cantos arredondados mais sutis */
+        margin-top: 20px;
+        width: 100%;
+        font-size: 1.1rem;
+        border: 2px solid #333; /* Adicionando bordas escuras para destaque */
+        transition: background-color 0.3s, border-color 0.3s; /* Transições mais suaves */
+    }
+
+    .price-card button:hover {
+        background-color: #333;
+        color: #fff;
+        border-color: #00FF99; /* Cor do botão ao passar o mouse */
+    }
+
+    /* Estilo para a lista de características */
+    .price-card ul {
+        text-align: left;
+        margin-top: 15px;
+        font-size: 1rem;
+        list-style-position: inside;
+        color: #555;
+    }
+
+    .price-card ul li {
+        margin-bottom: 12px;
+    }
+
+    /* Responsividade para telas menores */
+    @media (max-width: 768px) {
+        .price-cards {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .price-card {
+            max-width: 100%;
+            margin-bottom: 2rem;
+        }
+    }
+
+    /* Ajuste para o texto "por mês" ficar em preto */
+    .price-card p {
+        font-size: 1.1rem;
+        color: #333;
+    }
+
+</style>
+
+<div class="container">
+    <div class="price-cards">
+        <!-- Plano Tradicional -->
+        <div class="price-card tradicional">
+            <div class="price-card-content">
+                <h2>PLANO ASSINATURA PROMOCIONAL BÁSICO</h2>
+                <div class="price-container">
+                    <span class="price-large">99</span><span class="price-small">,90</span>
+                </div>
+                <p>por mês</p>
+
+             <button onclick="redirectToSignup()">EU QUERO</button>
+                <ul>
+                    <li>✅ Acesso Tradicionais</li>
+                    <li>✅ Acesso à AI Assistant</li>
+                    <li>✅ Sem fidelidade</li>
+                    <li>✅ Sem taxa de adesão</li>
+                    <li>✅ Bioimpedância a cada 3 meses</li>
+                </ul>
+            </div>
+            <!-- Quadrado colorido abaixo do plano tradicional -->
+            <div class="price-card-tradicional-square"></div>
+        </div>
+
+        <!-- Plano Premium -->
+        <div class="price-card premium">
+            <div class="price-card-content">
+                <h2>PLANO ASSINATURA PROMOCIONAL PREMIUM</h2>
+                <div class="price-container">
+                    <span class="price-large">139</span><span class="price-small">,90</span>
+                </div>
+                <p>por mês</p>
+            <button onclick="redirectToSignup()">EU QUERO</button>
+                <ul>
+                    <li>✅ Acesso Premium</li>
+                    <li>✅ Acesso à AI Assistant</li>
+                    <li>✅ Ambiente climatizado</li>
+                    <li>✅ Sem fidelidade</li>
+                    <li>✅ Sem taxa de adesão</li>
+                    <li>✅ Bioimpedância a cada 3 meses</li>
+                </ul>
+            </div>
+            <!-- Quadrado colorido abaixo do plano premium -->
+            <div class="price-card-premium-square"></div>
+        </div>
+
+        <!-- Plano Diamante -->
+        <div class="price-card diamante">
+            <div class="price-card-content">
+                <h2>PLANO ASSINATURA PROMOCIONAL DIAMANTE</h2>
+                <div class="price-container">
+                    <span class="price-large">159</span><span class="price-small">,90</span>
+                </div>
+                <p>por mês</p>
+               <button onclick="redirectToSignup()">EU QUERO</button>
+                <ul>
+                    <li>✅ Acesso ILIMITADO a +30 unidades</li>
+                     <li>✅ Acesso à AI Assistant</li>
+                    <li>✅ Ambiente climatizado</li>
+                    <li>✅ Sem taxa de adesão</li>
+                    <li>✅ Espaço Bodybuilder</li>
+                    <li>✅ Espaço Relax</li>
+                    <li>✅ Sala de Pose</li>
+                    <li>✅ Acesso exclusivo aos domingos</li>
+                    <li>✅ Bioimpedância a cada 3 meses</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+function redirectToSignup() {
+    window.location.href = '/signup';
+}
+</script>
+
+{% endblock %}

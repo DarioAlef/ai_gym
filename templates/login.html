@@ -1,119 +1,119 @@
 {% extends "base.html" %}
 
-{% block title %}Login - AI GYM{% endblock %}
+{% block title %}Reconhecimento Facial - AI GYM{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 500px; margin-top: 100px;">
-    <div class="card shadow-lg" style="border-radius: 15px; background-color: #1f1f1f; color: white;">
-        <div class="card-header text-center" style="background-color: #121212; border-radius: 15px 15px 0 0;">
-            <h2 style="color: #00ff99;">Login - AI GYM</h2>
-        </div>
-        <div class="card-body">
-            <form method="POST">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Usuário</label>
-                    <input type="text" class="form-control" id="username" name="username" required style="background-color: #333; color: white; border: 1px solid #444;">
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Senha</label>
-                    <input type="password" class="form-control" id="password" name="password" required style="background-color: #333; color: white; border: 1px solid #444;">
-                </div>
-                <button type="submit" class="btn btn-success w-100 mb-3" style="font-size: 1.2em; font-weight: bold; padding: 12px; background: linear-gradient(135deg, #00ff99, #00cc66); border: none; transition: all 0.3s ease;">
-                    Entrar
-                </button>
-                <button type="button" id="faceLoginBtn" class="btn btn-primary w-100" style="font-size: 1.2em; font-weight: bold; padding: 12px; background: linear-gradient(135deg, #0066ff, #0044cc); border: none; transition: all 0.3s ease;">
-                    Login com Reconhecimento Facial
-                </button>
-            </form>
-            <div id="videoContainer" style="display: none; margin-top: 20px;">
-                <video id="video" width="100%" autoplay></video>
-                <canvas id="canvas" style="display: none;"></canvas>
-            </div>
-        </div>
-        <div class="card-footer text-center" style="background-color: #121212; border-radius: 0 0 15px 15px;">
-            <p style="font-size: 0.9em;">Não tem uma conta? <a href="/signup" style="color: #00ff99; text-decoration: none;">Crie uma agora</a></p>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-detection"></script>
-
-<script>
-let video = null;
-let stream = null;
-
-document.getElementById('faceLoginBtn').addEventListener('click', async () => {
-    const videoContainer = document.getElementById('videoContainer');
-    
-    if (videoContainer.style.display === 'none') {
-        videoContainer.style.display = 'block';
-        video = document.getElementById('video');
-        
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-            
-            // Iniciar reconhecimento facial
-            startFaceDetection();
-        } catch (err) {
-            console.error("Erro ao acessar câmera:", err);
-            alert("Não foi possível acessar a câmera");
+    <style>
+        /* Remove margens e paddings padrão */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Impede rolagem */
         }
-    } else {
-        stopCamera();
-    }
-});
 
-async function startFaceDetection() {
-    const model = await faceDetection.createDetector();
-    
-    setInterval(async () => {
-        if (video && video.readyState === 4) {
-            const faces = await model.estimateFaces(video, {
-                flipHorizontal: false
-            });
-            
-            if (faces.length > 0) {
-                // Capturar frame e enviar para o servidor
-                const canvas = document.getElementById('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                
-                const imageData = canvas.toDataURL('image/jpeg');
-                
-                try {
-                    const response = await fetch('/face_login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ image: imageData })
-                    });
-                    
-                    const result = await response.json();
-                    if (result.success) {
-                        stopCamera();
-                        window.location.href = '/dashboard';
-                    }
-                } catch (err) {
-                    console.error("Erro ao enviar imagem:", err);
-                }
+        /* Define a imagem de fundo */
+        .fullscreen-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/static/images/logo.png') no-repeat center center/cover;
+        }
+
+        /* Centraliza a câmera */
+        .camera-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        video {
+            display: block;
+            border-radius: 10px;
+            width: 400px;
+            height: auto;
+        }
+    </style>
+
+    <div class="fullscreen-bg"></div>
+
+    <!-- Câmera centralizada -->
+    <div class="camera-container">
+        <video id="video" autoplay></video>
+        <canvas id="canvas" style="display: none;"></canvas>
+    </div>
+
+    <script>
+        let video = document.getElementById('video');
+        let stream = null;
+
+        // Inicia a câmera automaticamente ao carregar a página
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                startFaceDetection();
+            } catch (err) {
+                console.error("Erro ao acessar câmera:", err);
+                alert("Não foi possível acessar a câmera");
             }
         }
-    }, 100);
-}
 
-function stopCamera() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-    }
-    if (video) {
-        video.srcObject = null;
-    }
-    document.getElementById('videoContainer').style.display = 'none';
-}
-</script>
+        async function startFaceDetection() {
+            const model = await faceDetection.createDetector();
+
+            setInterval(async () => {
+                if (video && video.readyState === 4) {
+                    const faces = await model.estimateFaces(video, {
+                        flipHorizontal: false
+                    });
+
+                    if (faces.length > 0) {
+                        // Capturar frame e enviar para o servidor
+                        const canvas = document.getElementById('canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        canvas.getContext('2d').drawImage(video, 0, 0);
+
+                        const imageData = canvas.toDataURL('image/jpeg');
+
+                        try {
+                            const response = await fetch('/face_login', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ image: imageData })
+                            });
+
+                            const result = await response.json();
+                            if (result.success) {
+                                stopCamera();
+                                window.location.href = '/dashboard';
+                            }
+                        } catch (err) {
+                            console.error("Erro ao enviar imagem:", err);
+                        }
+                    }
+                }
+            }, 100);
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            video.srcObject = null;
+        }
+
+        // Inicia automaticamente ao carregar a página
+        window.onload = startCamera;
+    </script>
 {% endblock %}

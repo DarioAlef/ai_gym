@@ -3,125 +3,112 @@
 {% block title %}Cadastro - AI GYM{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 500px; margin-top: 100px;">
-    <div class="card shadow-lg" style="border-radius: 15px; background-color: #1f1f1f; color: white;">
-        <div class="card-header text-center" style="background-color: #121212; border-radius: 15px 15px 0 0;">
-            <h2 style="color: #00ff99;">Cadastro - AI GYM</h2>
-        </div>
-        <div class="card-body">
-            <form id="signupForm">
+
+    <style>
+        .fullscreen-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/static/images/logo.png') no-repeat center center/cover;
+        }
+    </style>
+
+    <div class="fullscreen-bg"></div>
+
+    <div class="container-fluid d-flex justify-content-center align-items-center" style="height: 100vh; background-color: #07191c;">
+        <div class="text-left" style="z-index: 10; max-width: 450px; width: 100%; padding: 20px;">
+            <!-- Título -->
+            <h2 style="color: #00ff99; font-family: 'Arial', sans-serif; font-weight: bold; font-size: 2.5em; margin-bottom: 20px; text-align: center;">
+                Cadastro
+            </h2>
+
+            <!-- Formulário de cadastro com rolagem -->
+            <form method="POST" id="signup-form" style="background: rgba(0, 0, 0, 0.7); padding: 30px; border-radius: 15px; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); overflow-y: auto; max-height: 70vh;">
+                <!-- Nome Completo -->
                 <div class="mb-3">
-                    <label for="username" class="form-label">Usuário</label>
-                    <input type="text" class="form-control" id="username" name="username" required style="background-color: #333; color: white; border: 1px solid #444;">
+                    <label for="full_name" class="form-label" style="color: #fff; font-size: 1.2em;">Nome Completo:</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" required placeholder="Digite seu nome completo" style="background-color: #2a2a2a; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 1em;">
                 </div>
+
+                <!-- Data de Nascimento -->
                 <div class="mb-3">
-                    <label for="password" class="form-label">Senha</label>
-                    <input type="password" class="form-control" id="password" name="password" required style="background-color: #333; color: white; border: 1px solid #444;">
+                    <label for="birth_date" class="form-label" style="color: #fff; font-size: 1.2em;">Data de Nascimento:</label>
+                    <input type="date" class="form-control" id="birth_date" name="birth_date" required style="background-color: #2a2a2a; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 1em;">
                 </div>
-                <button type="submit" class="btn btn-success w-100 mb-3" style="font-size: 1.2em; font-weight: bold; padding: 12px; background: linear-gradient(135deg, #00ff99, #00cc66); border: none; transition: all 0.3s ease;">
-                    Cadastrar
-                </button>
-                <button type="button" id="faceRegisterBtn" class="btn btn-primary w-100" style="font-size: 1.2em; font-weight: bold; padding: 12px; background: linear-gradient(135deg, #0066ff, #0044cc); border: none; transition: all 0.3s ease;">
-                    Cadastrar Face
+
+                <!-- CPF -->
+                <div class="mb-3">
+                    <label for="cpf" class="form-label" style="color: #fff; font-size: 1.2em;">CPF:</label>
+                    <input type="text" class="form-control" id="cpf" name="cpf" required placeholder="Digite seu CPF" style="background-color: #2a2a2a; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 1em;">
+                </div>
+
+                <!-- Gênero -->
+                <div class="mb-3">
+                    <label for="gender" class="form-label" style="color: #fff; font-size: 1.2em;">Gênero:</label>
+                    <select id="gender" name="gender" class="form-control" required style="background-color: #2a2a2a; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 1em;">
+                        <option value="masculino">Masculino</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+
+                <!-- Endereço -->
+                <div class="mb-3">
+                    <label for="address" class="form-label" style="color: #fff; font-size: 1.2em;">Endereço:</label>
+                    <input type="text" class="form-control" id="address" name="address" required placeholder="Digite seu endereço" style="background-color: #2a2a2a; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 1em;">
+                </div>
+
+                <!-- Botão de Enviar -->
+                <button type="button" onclick="validateForm()" class="btn w-100" style="font-size: 1.2em; font-weight: bold; padding: 12px; background: linear-gradient(135deg, #00ff99, #00cc66); border: none; border-radius: 8px; transition: all 0.3s ease; color: white;">
+                    Criar Conta
                 </button>
             </form>
-            <div id="videoContainer" style="display: none; margin-top: 20px;">
-                <video id="video" width="100%" autoplay></video>
-                <canvas id="canvas" style="display: none;"></canvas>
+
+            <!-- Link de retorno ao login -->
+            <div class="mt-3" style="font-size: 0.9em; color: white; text-align: center;">
+                <p>Já tem uma conta? <a href="/login" style="color: #00ff99; text-decoration: none;">Faça login</a></p>
             </div>
         </div>
-        <div class="card-footer text-center" style="background-color: #121212; border-radius: 0 0 15px 15px;">
-            <p style="font-size: 0.9em;">Já tem uma conta? <a href="/login" style="color: #00ff99; text-decoration: none;">Faça login</a></p>
-        </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-detection"></script>
-
-<script>
-let video = null;
-let stream = null;
-let photosTaken = 0;
-const REQUIRED_PHOTOS = 30; // Número de fotos necessárias para cadastro
-
-document.getElementById('faceRegisterBtn').addEventListener('click', async () => {
-    const videoContainer = document.getElementById('videoContainer');
-    
-    if (videoContainer.style.display === 'none') {
-        videoContainer.style.display = 'block';
-        video = document.getElementById('video');
-        
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-            
-            startFaceDetection();
-        } catch (err) {
-            console.error("Erro ao acessar câmera:", err);
-            alert("Não foi possível acessar a câmera");
+    <!-- Personalização da barra de rolagem -->
+    <style>
+        form::-webkit-scrollbar {
+            width: 8px;
         }
-    } else {
-        stopCamera();
-    }
-});
 
-async function startFaceDetection() {
-    const model = await faceDetection.createDetector();
-    const captureInterval = setInterval(async () => {
-        if (video && video.readyState === 4) {
-            const faces = await model.estimateFaces(video, {
-                flipHorizontal: false
-            });
-            
-            if (faces.length > 0 && photosTaken < REQUIRED_PHOTOS) {
-                const canvas = document.getElementById('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                
-                const imageData = canvas.toDataURL('image/jpeg');
-                
-                try {
-                    const response = await fetch('/register_face', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ 
-                            image: imageData,
-                            user_id: document.getElementById('username').value
-                        })
-                    });
-                    
-                    const result = await response.json();
-                    if (result.success) {
-                        photosTaken++;
-                        if (photosTaken >= REQUIRED_PHOTOS) {
-                            clearInterval(captureInterval);
-                            stopCamera();
-                            alert("Cadastro facial concluído com sucesso!");
-                            // Submeter o formulário de cadastro
-                            document.getElementById('signupForm').submit();
-                        }
-                    }
-                } catch (err) {
-                    console.error("Erro ao enviar imagem:", err);
+        form::-webkit-scrollbar-thumb {
+            background-color: #00ff99;
+            border-radius: 10px;
+        }
+
+        form::-webkit-scrollbar-track {
+            background-color: #1d1d1d;
+        }
+    </style>
+
+    <script>
+        // Função para validar o formulário
+        function validateForm() {
+            var form = document.getElementById('signup-form');
+            var fields = form.querySelectorAll('input, select');
+            var allFilled = true;
+
+            // Verificar se todos os campos estão preenchidos
+            fields.forEach(function(field) {
+                if (field.value.trim() === "") {
+                    allFilled = false;
+                    alert("Por favor, preencha todos os campos.");
                 }
+            });
+
+            // Se todos os campos estiverem preenchidos, redireciona para a página de pagamento
+            if (allFilled) {
+                window.location.href = "/pagamento"; // Altere a URL para o endereço do pagamento
             }
         }
-    }, 500); // Captura uma foto a cada 500ms
-}
+    </script>
 
-function stopCamera() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-    }
-    if (video) {
-        video.srcObject = null;
-    }
-    document.getElementById('videoContainer').style.display = 'none';
-}
-</script>
-{% endblock %} 
+{% endblock %}
