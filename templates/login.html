@@ -45,41 +45,44 @@
 
     <!-- Câmera centralizada -->
     <div class="camera-container">
-        <video id="video" autoplay></video>
-        <canvas id="canvas" style="display: none;"></canvas>
+        <video id="video-login" autoplay></video>
+        <canvas id="canvas-login" style="display: none;"></canvas>
+        <button type="button" onclick="startLoginFaceRecognition()" class="btn w-100 mt-3" style="font-size: 1em; font-weight: bold; padding: 10px; background: #00cc66; border: none; border-radius: 8px; transition: all 0.3s ease; color: white; display: block; margin-left: auto; margin-right: auto;">
+            Iniciar Reconhecimento Facial
+        </button>
     </div>
 
     <script>
-        let video = document.getElementById('video');
-        let stream = null;
+        let videoLogin = document.getElementById('video-login');
+        let streamLogin = null;
 
-        // Inicia a câmera automaticamente ao carregar a página
-        async function startCamera() {
+        // Inicia a câmera ao abrir o modal de login
+        async function startLoginFaceRecognition() {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                startFaceDetection();
+                streamLogin = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoLogin.srcObject = streamLogin;
+                startFaceDetectionLogin();
             } catch (err) {
                 console.error("Erro ao acessar câmera:", err);
                 alert("Não foi possível acessar a câmera");
             }
         }
 
-        async function startFaceDetection() {
+        async function startFaceDetectionLogin() {
             const model = await faceDetection.createDetector();
 
             setInterval(async () => {
-                if (video && video.readyState === 4) {
-                    const faces = await model.estimateFaces(video, {
+                if (videoLogin && videoLogin.readyState === 4) {
+                    const faces = await model.estimateFaces(videoLogin, {
                         flipHorizontal: false
                     });
 
                     if (faces.length > 0) {
                         // Capturar frame e enviar para o servidor
-                        const canvas = document.getElementById('canvas');
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        canvas.getContext('2d').drawImage(video, 0, 0);
+                        const canvas = document.getElementById('canvas-login');
+                        canvas.width = videoLogin.videoWidth;
+                        canvas.height = videoLogin.videoHeight;
+                        canvas.getContext('2d').drawImage(videoLogin, 0, 0);
 
                         const imageData = canvas.toDataURL('image/jpeg');
 
@@ -94,7 +97,7 @@
 
                             const result = await response.json();
                             if (result.success) {
-                                stopCamera();
+                                stopLoginCamera();
                                 window.location.href = '/dashboard';
                             }
                         } catch (err) {
@@ -105,15 +108,17 @@
             }, 100);
         }
 
-        function stopCamera() {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
+        function stopLoginCamera() {
+            if (streamLogin) {
+                streamLogin.getTracks().forEach(track => track.stop());
+                streamLogin = null;
             }
-            video.srcObject = null;
+            videoLogin.srcObject = null;
         }
 
-        // Inicia automaticamente ao carregar a página
-        window.onload = startCamera;
+        // Inicia a câmera automaticamente ao abrir o modal
+        document.addEventListener('DOMContentLoaded', function() {
+            // Você pode optar por iniciar a câmera automaticamente ou ao clicar no botão
+        });
     </script>
 {% endblock %}
