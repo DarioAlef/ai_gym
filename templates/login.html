@@ -43,7 +43,7 @@
 
     <div class="fullscreen-bg"></div>
 
-    <!-- Câmera centralizada -->
+    <!-- Deixar a câmera centralizada -->
     <div class="camera-container">
         <video id="video-login" autoplay></video>
         <canvas id="canvas-login" style="display: none;"></canvas>
@@ -52,6 +52,7 @@
         </button>
     </div>
 
+    <!-- Script para iniciar a câmera -->   
     <script>
         let videoLogin = document.getElementById('video-login');
         let streamLogin = null;
@@ -68,6 +69,7 @@
             }
         }
 
+        // Script para iniciar a detecção facial
         async function startFaceDetectionLogin() {
             const model = await faceDetection.createDetector();
 

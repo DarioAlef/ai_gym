@@ -7,7 +7,7 @@
     <div class="chat-card">
         <div class="card-header text-center">
             <h2 class="chat-title">AI GYM Chat</h2>
-            <h4 class="sub-title">Parabéns, agora você faz parte</h3>
+            <h4 class="sub-title">Bem-vindo ao Futuro!</h3>
         </div>
         <div class="card-body">
             <div id="chat-messages" class="chat-messages">
@@ -111,7 +111,7 @@ body {
 }
 </style>
 
-<!-- Bibliotecas necessárias -->
+<!-- Importando as libs necessárias  -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
@@ -119,10 +119,11 @@ body {
 <script>
 let mediaRecorder; 
 let audioChunks = [];
+let messageHistory = []; // Array para armazenar o histórico de mensagens
 
-// Função para mostrar a resposta da IA imediatamente
+// Função para mostrar a resposta da IA imediatamente assim que entrar
 function showAiMessageInstantly(element, message) {
-    element.innerHTML = message; // Apresenta a mensagem da IA imediatamente, sem efeitos de digitação.
+    element.innerHTML = message;
 }
 
 // Função para converter tabela HTML para CSV
@@ -173,6 +174,7 @@ function downloadAsPNG() {
     });
 }
 
+// Função para gravar áudio
 document.getElementById('record-button').addEventListener('click', async function() {
     if (!mediaRecorder || mediaRecorder.state === 'inactive') {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -201,6 +203,7 @@ document.getElementById('record-button').addEventListener('click', async functio
     }
 });
 
+// Função para enviar mensagem do usuário
 document.getElementById('chat-form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -208,7 +211,10 @@ document.getElementById('chat-form').addEventListener('submit', async function(e
     const chatMessages = document.getElementById('chat-messages');
     const message = messageInput.value;
 
-    // Adiciona mensagem do usuário
+    // Adiciona mensagem do usuário ao histórico
+    messageHistory.push({ role: 'user', content: message });
+
+    // Adiciona mensagem do usuário no chat
     const userDiv = document.createElement('div');
     userDiv.className = 'message user-message';
     userDiv.textContent = message;
@@ -220,9 +226,9 @@ document.getElementById('chat-form').addEventListener('submit', async function(e
         const response = await fetch('/send_message', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/json', // Mudando para JSON
             },
-            body: `message=${encodeURIComponent(message)}`
+            body: JSON.stringify({ messages: messageHistory }) // Enviandoo histórico de mensagens
         });
 
         const data = await response.json();
@@ -232,7 +238,10 @@ document.getElementById('chat-form').addEventListener('submit', async function(e
             aiDiv.className = 'message ai-message';
             aiDiv.innerHTML = '';  // Inicializa o conteúdo vazio
 
-            // Apresenta a mensagem da IA imediatamente (sem intervalo)
+            // Adiciona a resposta da IA ao histórico
+            messageHistory.push({ role: 'assistant', content: data.response });
+
+            // Apresenta a mensagem da IA
             chatMessages.appendChild(aiDiv);
             showAiMessageInstantly(aiDiv, marked.parse(data.response));
 
@@ -254,6 +263,24 @@ marked.setOptions({
     sanitize: false, // Necessário para permitir tabelas HTML
     breaks: true
 });
+
+// Função para enviar mensagem de boas-vindas
+function sendWelcomeMessage() {
+    const welcomeMessage = "Olá, sou a IA GYM, irei montar um plano de treino personalizado para você. Para isso, preciso que me conte sobre você: \n1. Objetivo, \n2. Nível de experiência, \n3. Dias livres da semana \n4. e se possui algum tipo de restrição de saúde. \n\nQue tal gravar um áudio para mim? Clique no símbolo do microfone. 🎤 \n\n(recomendação: ao final peça uma TABELA do seu treino)";
+    const chatMessages = document.getElementById('chat-messages');
+
+    // Adiciona mensagem de boas-vindas
+    const aiDiv = document.createElement('div');
+    aiDiv.className = 'message ai-message';
+    aiDiv.innerHTML = welcomeMessage;  // Mensagem de boas-vindas
+    chatMessages.appendChild(aiDiv);
+
+    // Rola para a parte inferior do chat
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Chama a função de boas-vindas ao carregar a página
+window.onload = sendWelcomeMessage;
 </script>
 
-{% endblock %}
+{% endblock %}

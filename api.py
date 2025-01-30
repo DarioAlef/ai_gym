@@ -15,14 +15,17 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-def get_groq_response(user_message):
+def get_groq_response(messages):
+    # Certifique-se de que o formato das mensagens está correto
+    formatted_messages = []
+    for message in messages:
+        formatted_messages.append({
+            "role": message['role'],  # Deve ser 'user' ou 'assistant'
+            "content": message['content']
+        })
+
     chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": user_message,
-            }
-        ],
+        messages=formatted_messages,  # Use o formato correto
         model="llama-3.3-70b-versatile",
     )
     

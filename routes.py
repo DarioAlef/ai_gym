@@ -23,11 +23,13 @@ def planos():
 
 @bp.route("/send_message", methods=['POST'])
 def send_message():
-    user_message = request.form.get('message')
+    data = request.get_json()  # Mude para obter JSON
+    messages = data.get('messages', [])
 
     try:
-        # Usa a função importada do main.py
-        ai_response = get_groq_response(user_message)
+        # Construa a mensagem para enviar à API
+        user_message = messages[-1]['content']  # Pegue a última mensagem do usuário
+        ai_response = get_groq_response(messages)  # Envie o histórico de mensagens
 
         return jsonify({
             'status': 'success',
