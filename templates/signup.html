@@ -235,16 +235,6 @@
             }, 100);
         }
 
-        function stopCamera() {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
-            video.srcObject = null;
-        }
-
-        // Inicia automaticamente ao carregar a página
-        window.onload = startCamera;
     </script>
 
 {% endblock %}
