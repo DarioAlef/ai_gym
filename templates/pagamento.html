@@ -16,7 +16,7 @@
     <div class="fullscreen-bg"></div>
 
     <div class="container-fluid d-flex justify-content-center align-items-center" style="height: 100vh; background-color: #07191c;">
-        <div class="text-left" style="z-index: 10; max-width: 450px; width: 100%; padding: 20px;">
+        <div class="text-left" style="z-index: 10; max-width: 450px; width: 100%; padding: 20px; background: rgba(0, 0, 0, 0.7); border-radius: 10px;">
             <h2 style="color: #00ff99; font-family: 'Arial', sans-serif; font-weight: bold; font-size: 2.5em; margin-bottom: 20px; text-align: center;">
                 Pagamento
             </h2>
@@ -76,7 +76,7 @@
             </form>
 
             <!-- Imagem QR Code (aparece apenas quando PIX é selecionado) -->
-            <div id="pix-qr-code" style="display: none; margin-top: 20px;">
+            <div id="pix-qr-code" style="display: none; margin-top: 20px; background: rgba(0, 0, 0, 0.7); padding: 20px; border-radius: 10px;">
                 <p style="color: white; text-align: center;">Pagamento via PIX</p>
                 <img src="{{ url_for('static', filename='images/qr_code_pix.jpg') }}" alt="QR Code PIX" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
             </div>
